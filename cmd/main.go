@@ -34,9 +34,7 @@ func main() {
 	// Print Bot information
 	zap.L().Info("bot connected", zap.Any("user", botUser))
 
-	listener := tglistener.NewListener(bot, tglistener.Config{
-		GroupId: 0,
-	})
+	listener := tglistener.NewListener(bot, tglistener.Config{})
 
 	listener.Run(context.Background())
 }

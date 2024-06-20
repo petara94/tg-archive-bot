@@ -37,15 +37,16 @@ func (l Listener) Run(ctx context.Context) {
 			}
 
 			switch {
-			case update.Message != nil &&
-				update.Message.Chat.Type == "group" &&
-				update.Message.Chat.ID == l.cfg.GroupId:
+			case update.Message != nil:
 				l.logger.Debug("received new message",
 					zap.String("group_title", update.Message.Chat.Title),
 					zap.String("message_sender", update.Message.From.Username),
 					zap.String("message_text", update.Message.Text),
 				)
+			default:
 
+				l.logger.Debug("received new event",
+					zap.Any("event", update))
 			}
 
 		}
