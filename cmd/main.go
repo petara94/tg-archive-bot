@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	sys_log "log"
+	"log/slog"
 
 	"tg-archive-bot/internal/log"
+	"tg-archive-bot/internal/services/tglistener"
 
 	"github.com/mymmrac/telego"
 	"go.uber.org/zap"
@@ -15,10 +17,11 @@ const TOKEN = "7473509536:AAG_30QvTClBFudeODn4JLiVsZYGatGCoTM"
 func main() {
 	_, err := log.RootLogger("development", "debug")
 	if err != nil {
-		sys_log.Fatal(err)
+		slog.Error("create zap logger", err)
+		return
 	}
 
-	bot, err := telego.NewBot(TOKEN, telego.WithDefaultDebugLogger())
+	bot, err := telego.NewBot(TOKEN)
 	if err != nil {
 		zap.L().Fatal("bot connect error", zap.Error(err))
 	}
@@ -31,13 +34,9 @@ func main() {
 	// Print Bot information
 	zap.L().Info("bot connected", zap.Any("user", botUser))
 
-	updates, _ := bot.UpdatesViaLongPolling(nil)
+	listener := tglistener.NewListener(bot, tglistener.Config{
+		GroupId: 0,
+	})
 
-	// Stop reviving updates from update channel
-	defer bot.StopLongPolling()
-
-	// Loop through all updates when they came
-	for update := range updates {
-		zap.L().Info("update", zap.Any("update", update))
-	}
+	listener.Run(context.Background())
 }
